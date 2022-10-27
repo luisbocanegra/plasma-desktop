@@ -46,6 +46,7 @@ PlasmaComponents.ContextMenu {
 
         } else if (status == PlasmaComponents.DialogStatus.Closed) {
             menu.destroy();
+            backend.ungrabMouse(visualParent);
         }
     }
 
@@ -358,7 +359,6 @@ PlasmaComponents.ContextMenu {
 
                 menuItem = menu.newMenuItem(virtualDesktopsMenu);
                 menuItem.text = i18n("&New Desktop");
-                menuItem.icon = "list-add";
                 menuItem.clicked.connect(function() {
                     tasksModel.requestNewVirtualDesktop(menu.modelIndex);
                 });
@@ -766,12 +766,6 @@ PlasmaComponents.ContextMenu {
         text: i18n("&Close")
         icon: "window-close"
 
-        onClicked: {
-            if (tasks.groupDialog !== null && tasks.groupDialog.visualParent === visualParent) {
-                tasks.groupDialog.visible = false;
-            }
-
-            tasksModel.requestClose(modelIndex);
-        }
+        onClicked: tasksModel.requestClose(modelIndex)
     }
 }

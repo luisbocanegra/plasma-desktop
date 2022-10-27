@@ -10,19 +10,6 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 
 MouseArea {
     id: audioStreamIconBox
-
-    width: Math.min(Math.min(iconBox.width, iconBox.height) * 0.4, PlasmaCore.Units.iconSizes.smallMedium)
-    height: width
-    anchors {
-        top: frame.top
-        right: frame.right
-        rightMargin: taskFrame.margins.right
-        topMargin: Math.round(taskFrame.margins.top * indicatorScale)
-    }
-
-    readonly property real indicatorScale: 1.2
-
-    activeFocusOnTab: true
     hoverEnabled: true
     onClicked: toggleMuted()
 
@@ -92,19 +79,9 @@ MouseArea {
     opacity: 0
     visible: opacity > 0
 
-    Keys.onReturnPressed: toggleMuted()
-    Keys.onEnterPressed: Keys.onReturnPressed(event);
-    Keys.onSpacePressed: Keys.onReturnPressed(event);
-
-    Accessible.checkable: true
-    Accessible.checked: task.muted
-    Accessible.name: task.muted ? i18nc("@action:button", "Unmute") : i18nc("@action:button", "Mute")
-    Accessible.description: task.muted ? i18nc("@info:tooltip %1 is the window title", "Unmute %1", model.display) : i18nc("@info:tooltip %1 is the window title", "Mute %1", model.display)
-    Accessible.role: Accessible.Button
-
     PlasmaCore.FrameSvgItem {
         anchors.fill: audioStreamIcon
-        visible: parent.containsMouse || parent.activeFocus
+        visible: parent.containsMouse
         imagePath: "widgets/viewitem"
         prefix: "hover"
     }
@@ -137,7 +114,7 @@ MouseArea {
                 when: tasks.vertical && frame.width < audioStreamIcon.requiredSpace
 
                 PropertyChanges {
-                    target: audioStreamIconBox
+                    target: audioStreamIconLoader
                     anchors.rightMargin: Math.round(taskFrame.margins.right * indicatorScale)
                 }
             },
@@ -147,14 +124,14 @@ MouseArea {
                 when: frame.width > audioStreamIcon.requiredSpace
 
                 AnchorChanges {
-                    target: audioStreamIconBox
+                    target: audioStreamIconLoader
 
                     anchors.top: undefined
                     anchors.verticalCenter: frame.verticalCenter
                 }
 
                 PropertyChanges {
-                    target: audioStreamIconBox
+                    target: audioStreamIconLoader
                     width: PlasmaCore.Units.roundToIconSize(Math.min(Math.min(iconBox.width, iconBox.height), PlasmaCore.Units.iconSizes.smallMedium))
                 }
 
@@ -171,14 +148,14 @@ MouseArea {
                 when: frame.height > audioStreamIcon.requiredSpace
 
                 AnchorChanges {
-                    target: audioStreamIconBox
+                    target: audioStreamIconLoader
 
                     anchors.right: undefined
                     anchors.horizontalCenter: frame.horizontalCenter
                 }
 
                 PropertyChanges {
-                    target: audioStreamIconBox
+                    target: audioStreamIconLoader
 
                     anchors.topMargin: taskFrame.margins.top
                     width: PlasmaCore.Units.roundToIconSize(Math.min(Math.min(iconBox.width, iconBox.height), PlasmaCore.Units.iconSizes.smallMedium))

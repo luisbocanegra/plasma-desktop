@@ -10,7 +10,10 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 Flow {
     property bool animating: false
 
-    layoutDirection: (plasmoid.configuration.reverseMode && !tasks.vertical)
+    readonly property bool tasksGrowInOppositeDirection: plasmoid.configuration.reverseMode
+    readonly property bool isHorizontalPanel: plasmoid.formFactor === PlasmaCore.Types.Horizontal
+
+    layoutDirection: (tasksGrowInOppositeDirection && isHorizontalPanel)
         ? (Qt.application.layoutDirection === Qt.LeftToRight)
             ? Qt.RightToLeft
             : Qt.LeftToRight

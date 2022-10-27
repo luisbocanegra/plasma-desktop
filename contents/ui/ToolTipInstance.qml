@@ -19,7 +19,7 @@ import org.kde.plasma.extras 2.0 as PlasmaExtras
 ColumnLayout {
     property var submodelIndex
     property int flatIndex: isGroup && index != undefined ? index : 0
-    readonly property int appPid: isGroup && model.AppPid !== undefined ? model.AppPid : pidParent
+    readonly property int appPid: isGroup ? model.AppPid : pidParent
 
     // HACK: Avoid blank space in the tooltip after closing a window
     ListView.onPooled: width = height = 0
@@ -206,7 +206,7 @@ ColumnLayout {
         }
 
         Loader {
-            active: (pipeWireLoader.item && pipeWireLoader.item.visible) || (thumbnailLoader.status === Loader.Ready && !thumbnailSourceItem.isMinimized)
+            active: (pipeWireLoader.active && pipeWireLoader.item.visible) || (thumbnailLoader.status === Loader.Ready && !thumbnailSourceItem.isMinimized)
             asynchronous: true
             visible: active
             anchors.fill: pipeWireLoader.active ? pipeWireLoader : thumbnailLoader

@@ -34,22 +34,14 @@ QtObject {
     }
 
     function findStreams(key, value) {
-        return findStreamsFn(stream => stream[key] === value);
-    }
-
-    function findStreamsFn(fn) {
         var streams = []
         for (var i = 0, length = instantiator.count; i < length; ++i) {
             var stream = instantiator.objectAt(i);
-            if (fn(stream)) {
+            if (stream[key] === value) {
                 streams.push(stream);
             }
         }
-        return streams;
-    }
-
-    function streamsForAppId(appId) {
-        return findStreams("portalAppId", appId);
+        return streams
     }
 
     function streamsForAppName(appName) {
@@ -57,9 +49,7 @@ QtObject {
     }
 
     function streamsForPid(pid) {
-        // skip stream that has portalAppId
-        // app using portal may have a sandbox pid
-        var streams = findStreamsFn(stream => stream.pid === pid && !stream.portalAppId);
+        var streams = findStreams("pid", pid);
 
         if (streams.length === 0) {
             for (var i = 0, length = instantiator.count; i < length; ++i) {
@@ -91,8 +81,7 @@ QtObject {
             readonly property int pid: model.Client ? model.Client.properties["application.process.id"] : 0
             // Determined on demand.
             property int parentPid: -1
-            readonly property string appName: model.Client && model.Client.properties["application.name"] || ""
-            readonly property string portalAppId: model.Client && model.Client.properties["pipewire.access.portal.app_id"] || ""
+            readonly property string appName: model.Client ? model.Client.properties["application.name"] : ""
             readonly property bool muted: model.Muted
             // whether there is nothing actually going on on that stream
             readonly property bool corked: model.Corked

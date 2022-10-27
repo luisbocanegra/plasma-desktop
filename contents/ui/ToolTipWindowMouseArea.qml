@@ -19,19 +19,15 @@ MouseArea {
     enabled: winId !== 0
 
     onClicked: {
-        switch (mouse.button) {
-        case Qt.LeftButton:
+        if (mouse.button == Qt.LeftButton) {
             tasksModel.requestActivate(modelIndex);
-            rootTask.hideImmediately();
+            rootTask.toolTipAreaItem.hideImmediately();
             backend.cancelHighlightWindows();
-            break;
-        case Qt.MiddleButton:
+        } else if (mouse.button == Qt.MiddleButton) {
             backend.cancelHighlightWindows();
             tasksModel.requestClose(modelIndex);
-            break;
-        case Qt.RightButton:
+        } else /* right button */ {
             tasks.createContextMenu(rootTask, modelIndex).show();
-            break;
         }
     }
 

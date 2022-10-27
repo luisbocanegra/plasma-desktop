@@ -11,12 +11,12 @@ const iconMargin = Math.round(PlasmaCore.Units.smallSpacing / 4);
 const labelMargin = PlasmaCore.Units.smallSpacing;
 
 function horizontalMargins() {
-    const spacingAdjustment = (plasmoid.pluginName === "org.kde.plasma.icontasks") ? (Kirigami.Settings.tabletMode ? 3 : plasmoid.configuration.iconSpacing) : 1
+    const spacingAdjustment = (plasmoid.configuration.iconOnly) ? (Kirigami.Settings.tabletMode ? 3 : plasmoid.configuration.iconSpacing) : 1
     return (taskFrame.margins.left + taskFrame.margins.right) * spacingAdjustment;
 }
 
 function verticalMargins() {
-    const spacingAdjustment = (plasmoid.pluginName === "org.kde.plasma.icontasks") ? (Kirigami.Settings.tabletMode ? 3 : plasmoid.configuration.iconSpacing) : 1
+    const spacingAdjustment = (plasmoid.configuration.iconOnly) ? (Kirigami.Settings.tabletMode ? 3 : plasmoid.configuration.iconSpacing) : 1
     return (taskFrame.margins.top + taskFrame.margins.bottom) * spacingAdjustment;
 }
 
@@ -45,7 +45,7 @@ function logicalTaskCount() {
 }
 
 function maxStripes() {
-    var length = tasks.vertical ? tasks.width : tasks.height;
+    var length = tasks.vertical ? taskList.width : taskList.height;
     var minimum = tasks.vertical ? preferredMinWidth() : preferredMinHeight();
 
     return Math.min(plasmoid.configuration.maxStripes, Math.max(1, Math.floor(length / minimum)));
@@ -86,7 +86,7 @@ function optimumCapacity(width, height) {
 
 function layoutWidth() {
     if (plasmoid.configuration.forceStripes && !tasks.vertical) {
-        return Math.min(tasks.width, Math.max(preferredMaxWidth(), tasksPerStripe() * preferredMaxWidth()));
+        return Math.min(tasks.width - (tasksPerStripe() * plasmoid.configuration.taskSpacingSize), Math.max(preferredMaxWidth(), tasksPerStripe() * preferredMaxWidth()));
     } else {
         return tasks.width;
     }
@@ -94,7 +94,7 @@ function layoutWidth() {
 
 function layoutHeight() {
     if (plasmoid.configuration.forceStripes && tasks.vertical) {
-        return Math.min(tasks.height, Math.max(preferredMaxHeight(), tasksPerStripe() * preferredMaxHeight()));
+        return Math.min(tasks.height - (tasksPerStripe() * plasmoid.configuration.taskSpacingSize), Math.max(preferredMaxHeight(), tasksPerStripe() * preferredMaxHeight()));
     } else {
         return tasks.height;
     }
@@ -106,7 +106,7 @@ function preferredMinWidth() {
     if (!tasks.vertical && !tasks.iconsOnly) {
       width +=
           (PlasmaCore.Units.smallSpacing * 2) +
-          (PlasmaCore.Theme.mSize(PlasmaCore.Theme.defaultFont).width * 12);
+          (plasmoid.configuration.maxLength /*PlasmaCore.Theme.mSize(PlasmaCore.Theme.defaultFont).width * 12*/);
     }
 
     return width;
@@ -125,7 +125,7 @@ function preferredMaxWidth() {
         return preferredMinWidth();
     }
 
-    return Math.floor(preferredMinWidth() * 1.6);
+    return Math.floor(preferredMinWidth());
 }
 
 function preferredMinHeight() {

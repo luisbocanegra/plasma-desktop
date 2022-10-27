@@ -5,15 +5,11 @@
     SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-.pragma library
-
+.import QtQml 2.15 as QtQml
 .import org.kde.taskmanager 0.1 as TaskManager
 .import org.kde.plasma.core 2.0 as PlasmaCore // Needed by TaskManager
 
-var windowViewAvailable = false;
-var taskManagerInstanceCount = 0;
-
-function wheelActivateNextPrevTask(anchor, wheelDelta, eventDelta, wheelSkipMinimized, tasks) {
+function wheelActivateNextPrevTask(anchor, wheelDelta, eventDelta) {
     // magic number 120 for common "one click"
     // See: http://qt-project.org/doc/qt-5/qml-qtquick-wheelevent.html#angleDelta-prop
     wheelDelta += eventDelta;
@@ -27,21 +23,21 @@ function wheelActivateNextPrevTask(anchor, wheelDelta, eventDelta, wheelSkipMini
         increment--;
     }
     while (increment != 0) {
-        activateNextPrevTask(anchor, increment < 0, wheelSkipMinimized, tasks)
+        activateNextPrevTask(anchor, increment < 0)
         increment += (increment < 0) ? 1 : -1;
     }
 
     return wheelDelta;
 }
 
-function activateNextPrevTask(anchor, next, wheelSkipMinimized, tasks) {
+function activateNextPrevTask(anchor, next) {
     // FIXME TODO: Unnecessarily convoluted and costly; optimize.
 
     var taskIndexList = [];
-    var activeTaskIndex = tasks.tasksModel.activeTask;
+    var activeTaskIndex = tasksModel.activeTask;
 
-    for (var i = 0; i < tasks.taskList.children.length - 1; ++i) {
-        var task = tasks.taskList.children[i];
+    for (var i = 0; i < taskList.children.length - 1; ++i) {
+        var task = taskList.children[i];
         var modelIndex = task.modelIndex(i);
 
         if (task.m.IsLauncher !== true && task.m.IsStartup !== true) {
@@ -50,10 +46,10 @@ function activateNextPrevTask(anchor, next, wheelSkipMinimized, tasks) {
                     taskIndexList = [];
                 }
 
-                for (var j = 0; j < tasks.tasksModel.rowCount(modelIndex); ++j) {
-                    const childModelIndex = tasks.tasksModel.makeModelIndex(i, j);
-                    const childHidden = tasks.tasksModel.data(childModelIndex, TaskManager.AbstractTasksModel.IsHidden);
-                    if (!wheelSkipMinimized || !childHidden) {
+                for (var j = 0; j < tasksModel.rowCount(modelIndex); ++j) {
+                    const childModelIndex = tasksModel.makeModelIndex(i, j);
+                    const childHidden = tasksModel.data(childModelIndex, TaskManager.AbstractTasksModel.IsHidden);
+                    if (!plasmoid.configuration.wheelSkipMinimized || !childHidden) {
                         taskIndexList.push(childModelIndex);
                     }
                 }
@@ -62,7 +58,7 @@ function activateNextPrevTask(anchor, next, wheelSkipMinimized, tasks) {
                     break;
                 }
             } else {
-                if (!wheelSkipMinimized || !task.m.IsHidden) {
+                if (!plasmoid.configuration.wheelSkipMinimized || !task.m.IsHidden) {
                     taskIndexList.push(modelIndex);
                 }
             }
@@ -92,20 +88,14 @@ function activateNextPrevTask(anchor, next, wheelSkipMinimized, tasks) {
         }
     }
 
-    tasks.tasksModel.requestActivate(target);
+    tasksModel.requestActivate(target);
 }
 
-function activateTask(index, model, modifiers, task, plasmoid, tasks) {
+function activateTask(index, model, modifiers, task) {
     if (modifiers & Qt.ShiftModifier) {
-        tasks.tasksModel.requestNewInstance(index);
-        return;
-    }
-    // Publish delegate geometry again if there are more than one task manager instance
-    if (taskManagerInstanceCount >= 2) {
-        tasks.tasksModel.requestPublishDelegateGeometry(task.modelIndex(), tasks.backend.globalRect(task), task);
-    }
+        tasksModel.requestNewInstance(index);
+    } else if (model.IsGroupParent === true) {
 
-    if (model.IsGroupParent === true) {
         // Option 1 (default): Cycle through this group's tasks
         // ====================================================
         // If the grouped task does not include the currently active task, bring
@@ -119,10 +109,10 @@ function activateTask(index, model, modifiers, task, plasmoid, tasks) {
             let lastUsedTask = undefined;
 
             // Build list of child tasks and get stacking order data for them
-            for (let i = 0; i < tasks.tasksModel.rowCount(task.modelIndex(index)); ++i) {
-                const childTaskModelIndex = tasks.tasksModel.makeModelIndex(task.itemIndex, i);
+            for (let i = 0; i < tasksModel.rowCount(task.modelIndex(index)); ++i) {
+                const childTaskModelIndex = tasksModel.makeModelIndex(task.itemIndex, i);
                 childTaskList.push(childTaskModelIndex);
-                const stacking = tasks.tasksModel.data(childTaskModelIndex, TaskManager.AbstractTasksModel.StackingOrder);
+                const stacking = tasksModel.data(childTaskModelIndex, TaskManager.AbstractTasksModel.StackingOrder);
                 if (stacking > highestStacking) {
                     highestStacking = stacking;
                     lastUsedTask = childTaskModelIndex;
@@ -131,8 +121,8 @@ function activateTask(index, model, modifiers, task, plasmoid, tasks) {
 
             // If the active task is from a different app from the group that
             // was clicked on switch to the last-used task from that app.
-            if (!childTaskList.some(index => tasks.tasksModel.data(index, TaskManager.AbstractTasksModel.IsActive))) {
-                tasks.tasksModel.requestActivate(lastUsedTask);
+            if (!childTaskList.some(index => tasksModel.data(index, TaskManager.AbstractTasksModel.IsActive))) {
+                tasksModel.requestActivate(lastUsedTask);
             } else {
                 // If the active task is already among in the group that was
                 // activated, cycle through all tasks according to the order of
@@ -140,13 +130,13 @@ function activateTask(index, model, modifiers, task, plasmoid, tasks) {
                 // every click.
                 for (let j = 0; j < childTaskList.length; ++j) {
                     const childTask = childTaskList[j];
-                        if (tasks.tasksModel.data(childTask, TaskManager.AbstractTasksModel.IsActive)) {
+                        if (tasksModel.data(childTask, TaskManager.AbstractTasksModel.IsActive)) {
                             // Found the current task. Activate the next one
                             let nextTask = j + 1;
                             if (nextTask >= childTaskList.length) {
                                 nextTask = 0;
                             }
-                            tasks.tasksModel.requestActivate(childTaskList[nextTask]);
+                            tasksModel.requestActivate(childTaskList[nextTask]);
                             break;
                         }
                 }
@@ -155,13 +145,17 @@ function activateTask(index, model, modifiers, task, plasmoid, tasks) {
 
         // Option 2: show tooltips for all child tasks
         // ===========================================
-        else if (plasmoid.configuration.groupedTaskVisualization === 1) {
+        // Make sure tooltips are actually enabled though; if not, fall through
+        // to the next option.
+        else if (plasmoid.configuration.showToolTips
+            && plasmoid.configuration.groupedTaskVisualization === 1
+        ) {
             if (tasks.toolTipOpenedByClick) {
-                task.hideImmediately();
+                task.toolTipAreaItem.hideImmediately();
             } else {
                 tasks.toolTipOpenedByClick = task;
                 task.showToolTip();
-                task.containsMouseChanged();
+                task.toolTipAreaItem.onContainsMouseChanged();
             }
         }
 
@@ -169,39 +163,68 @@ function activateTask(index, model, modifiers, task, plasmoid, tasks) {
         // ==================================================
         // Make sure the Window View effect is  are actually enabled though;
         // if not, fall through to the next option.
-        else if (plasmoid.configuration.groupedTaskVisualization === 2 && windowViewAvailable) {
-            task.hideToolTip();
+        else if (backend.windowViewAvailable
+            && (plasmoid.configuration.groupedTaskVisualization === 2
+            || plasmoid.configuration.groupedTaskVisualization === 1)
+        ) {
+            task.hideToolTipTemporarily();
             tasks.activateWindowView(model.WinIdList);
         }
 
         // Option 4: show group dialog/textual list
         // ========================================
-        // This is also the final fallback option if Window View
-        // is chosen but not actually available
+        // This is also the final fallback option if Tooltips or Present windows
+        // are chosen but not actually available
         else {
-            if (!!tasks.groupDialog) {
-                task.hideToolTip();
-                tasks.groupDialog.visible = false;
+            if (!!groupDialog) {
+                task.hideToolTipTemporarily();
+                groupDialog.visible = false;
             } else {
-                createGroupDialog(task, tasks);
+                createGroupDialog(task);
             }
         }
     } else {
         if (model.IsMinimized === true) {
-            tasks.tasksModel.requestToggleMinimized(index);
-            tasks.tasksModel.requestActivate(index);
+            tasksModel.requestToggleMinimized(index);
+            tasksModel.requestActivate(index);
         } else if (model.IsActive === true && plasmoid.configuration.minimizeActiveTaskOnClick) {
-            tasks.tasksModel.requestToggleMinimized(index);
+            tasksModel.requestToggleMinimized(index);
         } else {
-            tasks.tasksModel.requestActivate(index);
+            tasksModel.requestActivate(index);
         }
     }
 }
 
-function taskPrefix(prefix, location) {
-    var effectivePrefix;
+function insertIndexAt(above, x, y) {
+    if (above) {
+        return above.itemIndex;
+    } else {
+        var distance = tasks.vertical ? x : y;
+        var step = tasks.vertical ? LayoutManager.taskWidth() : LayoutManager.taskHeight();
+        var stripe = Math.ceil(distance / step);
 
-    switch (location) {
+        if (stripe === LayoutManager.calculateStripes()) {
+            return tasksModel.count - 1;
+        } else {
+            return stripe * LayoutManager.tasksPerStripe();
+        }
+    }
+}
+
+function publishIconGeometries(taskItems) {
+    for (var i = 0; i < taskItems.length - 1; ++i) {
+        var task = taskItems[i];
+
+        if (task.IsLauncher !== true && task.m.IsStartup !== true) {
+            tasksModel.requestPublishDelegateGeometry(tasksModel.makeModelIndex(task.itemIndex),
+                backend.globalRect(task), task);
+        }
+    }
+}
+
+function taskPrefix(prefix) {
+    var effectivePrefix;
+    switch (plasmoid.location) {
     case PlasmaCore.Types.LeftEdge:
         effectivePrefix = "west-" + prefix;
         break;
@@ -214,18 +237,38 @@ function taskPrefix(prefix, location) {
     default:
         effectivePrefix = "south-" + prefix;
     }
+    if(plasmoid.configuration.overridePlasmaButtonDirection){
+        switch (plasmoid.configuration.plasmaButtonDirection) {
+            case 2:
+                effectivePrefix = "west-" + prefix;
+                break;
+            case 1:
+                effectivePrefix = "north-" + prefix;
+                break;
+            case 4:
+                effectivePrefix = "east-" + prefix;
+                break;
+            default:
+                effectivePrefix = "south-" + prefix;
+            }
+    }
     return [effectivePrefix, prefix];
 }
 
-function taskPrefixHovered(prefix, location) {
-    return [
-        ...taskPrefix((prefix || "launcher") + "-hover", location),
-        ...prefix ? taskPrefix("hover", location) : [],
-        ...taskPrefix(prefix, location)
-    ];
+function taskPrefixHovered(prefix) {
+    var effectivePrefix = taskPrefix(prefix);
+
+    if ("" !== prefix)
+        effectivePrefix = [
+            ...taskPrefix(prefix + "-hover"),
+            ...taskPrefix("hover"),
+            ...effectivePrefix
+        ];
+
+    return effectivePrefix;
 }
 
-function createGroupDialog(visualParent, tasks) {
+function createGroupDialog(visualParent) {
     if (!visualParent) {
         return;
     }
@@ -235,9 +278,11 @@ function createGroupDialog(visualParent, tasks) {
         return;
     }
 
-    tasks.groupDialog = tasks.groupDialogComponent.createObject(tasks,
-        {
-            visualParent: visualParent,
-        }
-    );
+    if (groupDialogComponent.status === QtQml.Component.Ready) {
+        tasks.groupDialog = groupDialogComponent.createObject(tasks,
+            {
+                visualParent: visualParent,
+            }
+        );
+    }
 }

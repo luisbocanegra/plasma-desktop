@@ -23,22 +23,6 @@ Item {
     property alias hoveredItem: dropHandler.hoveredItem
     property alias handleWheelEvents: wheelHandler.active
 
-    function insertIndexAt(above, x, y) {
-        if (above) {
-            return above.itemIndex;
-        } else {
-            var distance = tasks.vertical ? x : y;
-            var step = tasks.vertical ? LayoutManager.taskWidth() : LayoutManager.taskHeight();
-            var stripe = Math.ceil(distance / step);
-
-            if (stripe === LayoutManager.calculateStripes()) {
-                return tasks.tasksModel.count - 1;
-            } else {
-                return stripe * LayoutManager.tasksPerStripe();
-            }
-        }
-    }
-
     Timer {
         id: ignoreItemTimer
 
@@ -58,19 +42,6 @@ Item {
                 ignoredItem = null;
                 ignoreItemTimer.stop();
             }
-        }
-    }
-
-    WheelHandler {
-        id: wheelHandler
-
-        property bool active: true
-        property int wheelDelta: 0;
-
-        enabled: active && plasmoid.configuration.wheelEnabled
-
-        onWheel: {
-            wheelDelta = TaskTools.wheelActivateNextPrevTask(null, wheelDelta, event.angleDelta.y, plasmoid.configuration.wheelSkipMinimized, tasks);
         }
     }
 
@@ -133,7 +104,7 @@ Item {
                     return;
                 }
 
-                var insertAt = insertIndexAt(above, event.x, event.y);
+                var insertAt = TaskTools.insertIndexAt(above, event.x, event.y);
 
                 if (tasks.dragSource !== above && tasks.dragSource.itemIndex !== insertAt) {
                     if (!!tasks.groupDialog) {
@@ -184,11 +155,32 @@ Item {
 
             onTriggered: {
                 if (parent.hoveredItem.m.IsGroupParent === true) {
-                    TaskTools.createGroupDialog(parent.hoveredItem, tasks);
+                    TaskTools.createGroupDialog(parent.hoveredItem);
                 } else if (parent.hoveredItem.m.IsLauncher !== true) {
                     tasksModel.requestActivate(parent.hoveredItem.modelIndex());
                 }
             }
+        }
+    }
+
+    MouseArea {
+        id: wheelHandler
+
+        anchors.fill: parent
+
+        enabled: active && plasmoid.configuration.wheelEnabled
+
+        property bool active: true
+        property int wheelDelta: 0;
+
+
+        onWheel: {
+            if (!active) {
+                wheel.accepted = false;
+                return;
+            }
+
+            wheelDelta = TaskTools.wheelActivateNextPrevTask(null, wheelDelta, wheel.angleDelta.y);
         }
     }
 }
