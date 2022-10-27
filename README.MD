@@ -9,13 +9,7 @@
 3. Right click your panel, click add widgets and search for fancy tasks.
 4. Right click the new task panel and click Configure Fancy Tasks... - everything you will want to configure to enable the new features will be in there. Default features are based on the KDE's team existing vision.
 
-(Alternatively you should be able to double click the shell script to run it)
-
 (This package is also on the AUR and can be installed from there)
-
-## Updating
-
-1. Run the update.sh script, it will automatically stop and restart plasma to make sure the new changes get loaded in.
 
 ## Features
 
