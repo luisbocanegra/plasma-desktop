@@ -23,9 +23,8 @@ MouseArea {
     anchors.fill: parent
     hoverEnabled: true
 
-    readonly property bool shouldShirnkToZero: !LayoutManager.logicalTaskCount()
     property bool vertical: plasmoid.formFactor === PlasmaCore.Types.Vertical
-    property bool iconsOnly: plasmoid.pluginName === "org.kde.plasma.icontasks"
+    property bool iconsOnly: plasmoid.configuration.iconOnly
 
     property var toolTipOpenedByClick: null
 
@@ -45,40 +44,22 @@ MouseArea {
         }
     }
 
-    Layout.fillWidth: tasks.vertical ? true : plasmoid.configuration.fill
-    Layout.fillHeight: !tasks.vertical ? true : plasmoid.configuration.fill
-    Layout.minimumWidth: {
-        if (shouldShirnkToZero) {
-            return PlasmaCore.Units.gridUnit; // For edit mode
-        }
-        return tasks.vertical ? 0 : LayoutManager.preferredMinWidth();
-    }
-    Layout.minimumHeight: {
-        if (shouldShirnkToZero) {
-            return PlasmaCore.Units.gridUnit; // For edit mode
-        }
-        return !tasks.vertical ? 0 : LayoutManager.preferredMinHeight();
-    }
+    Layout.fillWidth: true
+    Layout.fillHeight: true
+    Layout.minimumWidth: tasks.vertical ? 0 : LayoutManager.preferredMinWidth()
+    Layout.minimumHeight: !tasks.vertical ? 0 : LayoutManager.preferredMinHeight()
 
 //BEGIN TODO: this is not precise enough: launchers are smaller than full tasks
-    Layout.preferredWidth: {
-        if (shouldShirnkToZero) {
-            return 0.01;
-        }
-        if (tasks.vertical) {
-            return PlasmaCore.Units.gridUnit * 10;
-        }
-        return (LayoutManager.logicalTaskCount() * LayoutManager.preferredMaxWidth()) / LayoutManager.calculateStripes();
-    }
-    Layout.preferredHeight: {
-        if (shouldShirnkToZero) {
-            return 0.01;
-        }
-        if (tasks.vertical) {
-            return (LayoutManager.logicalTaskCount() * LayoutManager.preferredMaxHeight()) / LayoutManager.calculateStripes();
-        }
-        return PlasmaCore.Units.gridUnit * 2;
-    }
+
+    Layout.preferredWidth: tasks.vertical ? PlasmaCore.Units.gridUnit * 10 :
+                           (LayoutManager.logicalTaskCount() === 0 ? 0.01 : //Return a small non-zero value to make the panel account for the change in size
+                           (LayoutManager.logicalTaskCount() * LayoutManager.preferredMaxWidth()) / LayoutManager.calculateStripes())
+
+
+    Layout.preferredHeight: !tasks.vertical ? PlasmaCore.Units.gridUnit * 2 :
+                            (LayoutManager.logicalTaskCount() === 0 ? 0.01 : //Same as above
+                            (LayoutManager.logicalTaskCount() * LayoutManager.preferredMaxHeight()) / LayoutManager.calculateStripes())
+
 //END TODO
 
     property Item dragSource: null
@@ -86,6 +67,22 @@ MouseArea {
     signal requestLayout
     signal windowsHovered(variant winIds, bool hovered)
     signal activateWindowView(variant winIds)
+
+    onWidthChanged: {
+        taskList.width = LayoutManager.layoutWidth();
+
+        if (plasmoid.configuration.forceStripes) {
+            taskList.height = LayoutManager.layoutHeight();
+        }
+    }
+
+    onHeightChanged: {
+        if (plasmoid.configuration.forceStripes) {
+            taskList.width = LayoutManager.layoutWidth();
+        }
+
+        taskList.height = LayoutManager.layoutHeight();
+    }
 
     onDragSourceChanged: {
         if (dragSource == null) {
@@ -426,13 +423,15 @@ MouseArea {
 
     TaskList {
         id: taskList
+        spacing: plasmoid.configuration.taskSpacingSize
 
         anchors {
             left: parent.left
             top: parent.top
         }
-        width: tasks.shouldShirnkToZero ? 0 : LayoutManager.layoutWidth()
-        height: tasks.shouldShirnkToZero ? 0 : LayoutManager.layoutHeight()
+
+        onWidthChanged: LayoutManager.layout(taskRepeater)
+        onHeightChanged: LayoutManager.layout(taskRepeater)
 
         flow: {
             if (tasks.vertical) {
@@ -446,10 +445,10 @@ MouseArea {
                 TaskTools.publishIconGeometries(children);
             }
         }
-        onWidthChanged: layoutTimer.restart()
-        onHeightChanged: layoutTimer.restart()
 
         function layout() {
+            taskList.width = LayoutManager.layoutWidth();
+            taskList.height = LayoutManager.layoutHeight();
             LayoutManager.layout(taskRepeater);
         }
 

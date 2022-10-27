@@ -224,7 +224,6 @@ function publishIconGeometries(taskItems) {
 
 function taskPrefix(prefix) {
     var effectivePrefix;
-
     switch (plasmoid.location) {
     case PlasmaCore.Types.LeftEdge:
         effectivePrefix = "west-" + prefix;
@@ -237,6 +236,21 @@ function taskPrefix(prefix) {
         break;
     default:
         effectivePrefix = "south-" + prefix;
+    }
+    if(plasmoid.configuration.overridePlasmaButtonDirection){
+        switch (plasmoid.configuration.plasmaButtonDirection) {
+            case 2:
+                effectivePrefix = "west-" + prefix;
+                break;
+            case 1:
+                effectivePrefix = "north-" + prefix;
+                break;
+            case 4:
+                effectivePrefix = "east-" + prefix;
+                break;
+            default:
+                effectivePrefix = "south-" + prefix;
+            }
     }
     return [effectivePrefix, prefix];
 }

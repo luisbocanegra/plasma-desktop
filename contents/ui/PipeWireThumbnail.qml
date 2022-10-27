@@ -8,14 +8,13 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 
 import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.pipewire 0.1 as PipeWire
 import org.kde.taskmanager 0.1 as TaskManager
 
 // opacity doesn't work in the root item
 Item {
     anchors.fill: parent
 
-    PipeWire.PipeWireSourceItem {
+    TaskManager.PipeWireSourceItem {
         id: pipeWireSourceItem
 
         enabled: false // Must be set in pipewiresourceitem.cpp so opacity animation can work
@@ -33,7 +32,7 @@ Item {
 
         Behavior on opacity {
             OpacityAnimator {
-                duration: PlasmaCore.Units.shortDuration
+                duration: PlasmaCore.Units.longDuration
                 easing.type: Easing.OutCubic
             }
         }

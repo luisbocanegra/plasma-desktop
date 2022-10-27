@@ -11,8 +11,9 @@ Flow {
     property bool animating: false
 
     readonly property bool tasksGrowInOppositeDirection: plasmoid.configuration.reverseMode
+    readonly property bool isHorizontalPanel: plasmoid.formFactor === PlasmaCore.Types.Horizontal
 
-    layoutDirection: (tasksGrowInOppositeDirection && !tasks.vertical)
+    layoutDirection: (tasksGrowInOppositeDirection && isHorizontalPanel)
         ? (Qt.application.layoutDirection === Qt.LeftToRight)
             ? Qt.RightToLeft
             : Qt.LeftToRight

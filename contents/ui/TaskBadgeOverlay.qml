@@ -10,7 +10,7 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 
 Item {
     readonly property int iconWidthDelta: (icon.width - icon.paintedWidth) / 2
-    readonly property bool shiftBadgeDown: (plasmoid.pluginName === "org.kde.plasma.icontasks") && task.audioStreamIcon !== null
+    readonly property bool shiftBadgeDown: (plasmoid.configuration.iconOnly) && task.audioStreamIconLoaderItem.shown
 
     Item {
         id: badgeMask
@@ -23,9 +23,6 @@ Item {
             anchors.rightMargin: Qt.application.layoutDirection === Qt.RightToLeft ? 0 : -offset
             anchors.leftMargin: Qt.application.layoutDirection === Qt.RightToLeft ? -offset : 0
             y: shiftBadgeDown ? (icon.height/2) : 0
-            Behavior on y {
-                NumberAnimation { duration: Kirigami.Durations.longDuration }
-            }
 
             visible: task.smartLauncherItem.countVisible
             width: badgeRect.width + offset * 2
@@ -81,9 +78,6 @@ Item {
         anchors.right: Qt.application.layoutDirection === Qt.RightToLeft ? undefined : parent.right
         anchors.left: Qt.application.layoutDirection === Qt.RightToLeft ? parent.left : undefined
         y: offset + (shiftBadgeDown ? (icon.height/2) : 0)
-        Behavior on y {
-            NumberAnimation { duration: Kirigami.Durations.longDuration }
-        }
         height: Math.round(parent.height * 0.4)
         visible: task.smartLauncherItem.countVisible
         number: task.smartLauncherItem.count

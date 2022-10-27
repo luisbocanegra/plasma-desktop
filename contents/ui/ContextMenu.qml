@@ -46,6 +46,7 @@ PlasmaComponents.ContextMenu {
 
         } else if (status == PlasmaComponents.DialogStatus.Closed) {
             menu.destroy();
+            backend.ungrabMouse(visualParent);
         }
     }
 
@@ -358,7 +359,6 @@ PlasmaComponents.ContextMenu {
 
                 menuItem = menu.newMenuItem(virtualDesktopsMenu);
                 menuItem.text = i18n("&New Desktop");
-                menuItem.icon = "list-add";
                 menuItem.clicked.connect(function() {
                     tasksModel.requestNewVirtualDesktop(menu.modelIndex);
                 });
