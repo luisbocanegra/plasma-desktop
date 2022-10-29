@@ -23,10 +23,12 @@ Features improvements tweaks and options to the original task manager plasmoid m
 
 * Implemented adjustable task width.
 * Implemented switching between taskbar types.
+* Indicators based on dash to panel styles from gnome, using [latte-indicator-dashtopanel](https://github.com/psifidotos/latte-indicator-dashtopanel) as the reference implementation.
+* Customizable indicator locations and colorizing of plasma. Note: not every plasma theme will color in a pleasant way as it depends on how the SVGs are made. General rule of thumb is bright white does not colorize well.
+* Animations (Thanks ziomek64!)
+* Growing/Shrinking and desaturation of indicators on minimize (Thanks ziomek64!)
+* Customization of number of indicators displayed - limit 10.
 
-
-## Known Issues
-* Does not support LTS currently! (fix me pls)
 
 ## Pictures
 Colorful Tasks  
@@ -55,13 +57,4 @@ Desaturate minimized tasks
 
 Minimized task shrinking  
 
-<<<<<<< HEAD
 ![Minimized task shrinking](https://github.com/alexankitty/FancyTasks/blob/main/docs/shrink%20crop.png?raw=true)
-
-## Extra Notes
-I'm a solo developer working on this project in my free time so it may take me a bit of time to work on issues. You can help me out by either doing a PR with fixes and I'll validate that they work in the code, or put in an issue for things that need to be changed.
-Especially helpful will be settings names to make them more clear. I have a code bias unfortunately so it does make it exceedingly difficult to convey what everything does.
-Lastly any feedback is appreciated, and I'll try to implement it as soon as I can.
-=======
-![Minimized task shrinking](https://github.com/alexankitty/FancyTasks/blob/main/docs/shrink%20crop.png?raw=true)
->>>>>>> d919b5e57 (Add new pics to readme)
