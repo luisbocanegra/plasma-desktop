@@ -564,9 +564,9 @@ MouseArea {
         }
 
         states:[
-            State {//safety case - use bottom when not override
+            State {//safety case - use bottom when not overriding
                 name: "floating-fallback"
-                when: (plasmoid.location === PlasmaCore.Types.Floating && !plasmoid.configuration.indicatorOverride)
+                when: (PlasmaCore.Types.Floating && !plasmoid.configuration.indicatorOverride)
 
                 AnchorChanges {
                     target: indicator
@@ -578,10 +578,10 @@ MouseArea {
                     width: undefined
                     height: plasmoid.configuration.indicatorSize
                 }
-            },
+            }
             State {
                 name: "floating-bottom"
-                when: (plasmoid.location === PlasmaCore.Types.Floating && plasmoid.configuration.indicatorLocation === 0)
+                when: (PlasmaCore.Types.Floating && plasmoid.configuration.indicatorLocation === 0)
 
                 AnchorChanges {
                     target: indicator
@@ -596,7 +596,7 @@ MouseArea {
             },
             State {
                 name: "floating-left"
-                when: (plasmoid.location === PlasmaCore.Types.Floating && plasmoid.configuration.indicatorLocation === 0)
+                when: (PlasmaCore.Types.Floating && plasmoid.configuration.indicatorLocation === 0)
 
                 AnchorChanges {
                     target: indicator
@@ -611,7 +611,7 @@ MouseArea {
             },
             State {
                 name: "floating-right"
-                when: (plasmoid.location === PlasmaCore.Types.Floating && plasmoid.configuration.indicatorLocation === 0)
+                when: (PlasmaCore.Types.Floating && plasmoid.configuration.indicatorLocation === 0)
 
                 AnchorChanges {
                     target: indicator
@@ -626,7 +626,7 @@ MouseArea {
             },
             State {
                 name: "floating-top"
-                when: (plasmoid.location === PlasmaCore.Types.Floating && plasmoid.configuration.indicatorLocation === 0)
+                when: (PlasmaCore.Types.Floating && plasmoid.configuration.indicatorLocation === 0)
 
                 AnchorChanges {
                     target: indicator
