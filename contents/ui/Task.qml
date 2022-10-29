@@ -414,20 +414,20 @@ MouseArea {
                     }
                     return Math.min(task.childCount + 1, maxStates);
                 }
-                readonly property int maxStates: isMetro ? 2 : 4
+                readonly property int maxStates: plasmoid.configuration.indicatorLimit
 
                 Rectangle{
                     id: stateRect
-                    Behavior on height { PropertyAnimation {duration: plasmoid.configuration.indicatorsAnimated ? 250 : 0} }
-                    Behavior on width { PropertyAnimation {duration: plasmoid.configuration.indicatorsAnimated ? 250 : 0} }
-                    Behavior on color { PropertyAnimation {duration: plasmoid.configuration.indicatorsAnimated ? 250 : 0} }
-                    Behavior on radius { PropertyAnimation {duration: plasmoid.configuration.indicatorsAnimated ? 250 : 0} }
+                    Behavior on height { PropertyAnimation {} }
+                    Behavior on width { PropertyAnimation {} }
+                    Behavior on color { PropertyAnimation {} }
+                    Behavior on radius { PropertyAnimation {} }
                     readonly property color decoColor: frame.dominantColor
-                    readonly property int maxStates: isMetro ? 2 : 4
+                    readonly property int maxStates: plasmoid.configuration.indicatorLimit
                     readonly property bool isFirst: index === 0
                     readonly property int adjust: plasmoid.configuration.indicatorShrink
                     readonly property int indicatorLength: plasmoid.configuration.indicatorLength
-                    readonly property int spacing: PlasmaCore.Units.smallSpacing /2
+                    readonly property int spacing: PlasmaCore.Units.smallSpacing
                     readonly property bool isVertical: {
                         if(plasmoid.formFactor === PlasmaCore.Types.Vertical && !plasmoid.configuration.indicatorOverride)
                         return true;
@@ -445,7 +445,7 @@ MouseArea {
                         var parentSize = !isVertical ? frame.width : frame.height;
                         var indicatorComputedSize;
                         var adjustment = isFirst ? adjust : 0
-                        var parentSpacingAdjust = task.childCount >= 1 && maxStates >= 2 ? (spacing * 2.5) : 0 //Spacing fix for multiple items
+                        var parentSpacingAdjust = task.childCount >= 1 && maxStates >= 2 ? spacing * 3 : 0 //Spacing fix for multiple items
                         if(plasmoid.configuration.indicatorDominantColor){
                             colorEval = decoColor
                         }
@@ -456,15 +456,22 @@ MouseArea {
                             colorEval = plasmoid.configuration.indicatorCustomColor
                         }
                         if(isFirst){//compute the size
+                            var growFactor = plasmoid.configuration.indicatorGrowFactor / 100
+                            if(plasmoid.configuration.indicatorGrow && task.state === "minimized") {
+                                var mainSize = indicatorLength * growFactor;
+                            }
+                            else{
+                                var mainSize = (parentSize + parentSpacingAdjust);
+                            }
                             switch(plasmoid.configuration.indicatorStyle){
                                 case 0:
-                                indicatorComputedSize = parentSize - (Math.min(task.childCount, maxStates)  * ((spacing + indicatorLength) / 2) + adjust)
+                                indicatorComputedSize = mainSize - (Math.min(task.childCount, maxStates === 1 ? 0 : maxStates)  * (spacing + indicatorLength)) - adjust
                                 break
                                 case 1:
-                                indicatorComputedSize = parentSize - (Math.min(task.childCount, maxStates)  * ((spacing + indicatorLength)) + adjust)
+                                indicatorComputedSize = mainSize - (Math.min(task.childCount, maxStates === 1 ? 0 : maxStates)  * (spacing + indicatorLength)) - adjust
                                 break
                                 case 2:
-                                indicatorComputedSize = indicatorLength
+                                indicatorComputedSize = plasmoid.configuration.indicatorGrow && task.state !== "minimized" ? indicatorLength * growFactor : indicatorLength
                                 break
                                 default:
                                 break
@@ -485,7 +492,7 @@ MouseArea {
                             var colorHSL = hexToHSL(colorEval)
                             colorCalc = Qt.hsla(colorHSL.h, 0.2, 0.6, 1)
                         }
-                        else if(!isFirst && plasmoid.configuration.indicatorStyle ===  0 && task.state !== "minimized") {//Metro specific handling
+                        if(!isFirst && plasmoid.configuration.indicatorStyle === 0) {//Metro specific handling
                             colorCalc = Qt.darker(colorEval, 1.2) 
                         }
                         else {
