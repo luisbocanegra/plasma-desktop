@@ -3,6 +3,51 @@ Features improvements tweaks and options to the original task manager plasmoid m
 * Implemented adjustable task width.
 * Implemented switching between taskbar types.
 
-### Todo
-* Implement marker changes and task designs
-* Allow coloring based on icon dominant color
+
+## Known Issues
+* Does not support LTS currently! (fix me pls)
+
+## To Do
+* Fix LTS support
+* Allow disabling of the plasma SVG (easy)
+* Update colorize to a more clear radio button.
+* Correct Metro to have *no* spacing (the multi app running indicator doesn't have a spacing in win10 and I apparently missed this)
+* Allow customization of the space between indicators (may have dangerous implications, required for presets)
+* Allow changing of animation duration
+* Change styles (Metro, Ciliora, Dashes) to presets, switch preset to custom when modifying settings. Add in Dots as a preset.
+* Fix naming conventions to be more clear to users.
+* Translations.
+
+## Pictures
+Colorful Tasks  
+
+![Colorful tasks](https://github.com/alexankitty/FancyTasks/blob/main/docs/colorfulicons%20crop.png?raw=true)
+
+Metro  
+
+![Metro](https://github.com/alexankitty/FancyTasks/blob/main/docs/metro.png?raw=true)
+
+Ciliora  
+
+![Ciliora](https://github.com/alexankitty/FancyTasks/blob/main/docs/ciliora.png?raw=true)
+
+Dashes  
+
+![Dashes](https://github.com/alexankitty/FancyTasks/blob/main/docs/dashes.png?raw=true)
+
+Dots  
+
+![Dots](https://github.com/alexankitty/FancyTasks/blob/main/docs/dots.png?raw=true)
+
+Desaturate minimized tasks  
+
+![Desaturated Minimized Tasks](https://github.com/alexankitty/FancyTasks/blob/main/docs/desaturate%20crop.png?raw=true)
+
+Minimized task shrinking  
+
+![Minimized task shrinking](https://github.com/alexankitty/FancyTasks/blob/main/docs/shrink%20crop.png?raw=true)
+
+## Extra Notes
+I'm a solo developer working on this project in my free time so it may take me a bit of time to work on issues. You can help me out by either doing a PR with fixes and I'll validate that they work in the code, or put in an issue for things that need to be changed.
+Especially helpful will be settings names to make them more clear. I have a code bias unfortunately so it does make it exceedingly difficult to convey what everything does.
+Lastly any feedback is appreciated, and I'll try to implement it as soon as I can.
