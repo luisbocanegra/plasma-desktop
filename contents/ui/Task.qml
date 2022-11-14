@@ -418,6 +418,10 @@ MouseArea {
 
                 Rectangle{
                     id: stateRect
+                    Behavior on height { PropertyAnimation {duration: plasmoid.configuration.indicatorsAnimated ? 250 : 0} }
+                    Behavior on width { PropertyAnimation {duration: plasmoid.configuration.indicatorsAnimated ? 250 : 0} }
+                    Behavior on color { PropertyAnimation {duration: plasmoid.configuration.indicatorsAnimated ? 250 : 0} }
+                    Behavior on radius { PropertyAnimation {duration: plasmoid.configuration.indicatorsAnimated ? 250 : 0} }
                     readonly property color decoColor: frame.dominantColor
                     readonly property int maxStates: isMetro ? 2 : 4
                     readonly property bool isFirst: index === 0
